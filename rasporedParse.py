@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 import time
 import os
 import re
+from RasporedClass import Raspored
 
 def login(username, password):
     options = Options()
@@ -40,7 +41,7 @@ def save_page(driver):
     title = urlparse(driver.current_url).path.strip('/').split('/')[-1]
 
     # Save the web page content to a separate HTML file
-    with open(f"{title}.html", "w") as f:
+    with open(f"{title}.html", "w" , encoding="utf-8") as f:
         f.write(driver.page_source)
 
 def get_raspored(driver):
@@ -50,15 +51,16 @@ def get_raspored(driver):
 def extract_raspored(raspored_html):
     # Extract the schedule
     time_cells = re.findall(r'<span class="dan_razdoblje".*?>(.*?)</span><span class="dan_ukupno".*?>(.*?)</span>', raspored_html)
-
+    names = re.findall(r'<div class="tjedan_djelatnik" style="[^"]*" title="([^"]+)"[^>]*>[^<]*<\/div>', raspored_html)
     # Clean up the extracted data
     while ('Razdoblje', 'Sati') in time_cells:
         time_cells.remove(('Razdoblje', 'Sati'))
     for i in range(len(time_cells)):
         if time_cells[i] == ('&nbsp;', '&nbsp;'):
             time_cells[i] = ('none', 'none')
-    return time_cells
+    return names[0] , time_cells
 def write_csv(raspored):
+    # Write the schedule to a CSV file
     pass
 
 def main():
@@ -73,6 +75,7 @@ def main():
 
     save_page(driver)
     write_csv(get_raspored(driver))
+    raspored = Raspored(get_raspored(driver))
     # Quit the driver
     driver.quit()
 

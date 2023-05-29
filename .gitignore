@@ -2,4 +2,5 @@ rasporedRada.html
 uname_pass.txt
 geckodriver.log
 login.html
-selenium.log
+selenium
+__pycache__
